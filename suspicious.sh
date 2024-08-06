@@ -1,11 +1,12 @@
 #Analyzing Chase Bank login records
 
 #!/bin/bash
+                      # -- Setting variables and arrays --
 
 #Declare 'logfile' variable to be read
 logfile="/var/log/auth_log.log"
 
-#Declare 'results' file variable to copy suspicious lines into
+#Declare 'results' variable to copy suspicious lines into
 results="/home/ubuntu/suspicious_activity.log"
 
 #Define array of suspicious keywords
@@ -15,21 +16,21 @@ suspiciousWords=("Failed" "Unauthorized" "error")
 declare -A existing_suslogs
 
 
-                        #-- Tracking lines in 'results' to prevent duplicate entries --#
+                        # -- Tracking lines in 'results' to prevent duplicate entries --
 
 if [ -f "$results" ]
 then
         #While reading through 'results'...
         while IFS= read -r line
         do
-                #put all lines found in 'results' file into 'existing_suslogs' array.
+                #put all lines found in 'results' into 'existing_suslogs' array.
                 existing_suslogs["$line"]=1
 
         done < "$results"
 fi
 
 
-                                #-- Processing lines of 'logfile' --#
+                          # -- Processing lines of 'logfile' --
 
 #Setting a counter for echo output
 counter=0
@@ -53,7 +54,7 @@ do
                         #add it to the 'existing_suslogs' array...
                         existing_suslogs["$line"]=1
 
-                        #and count how many new lines were entered.
+                        #and count how many new lines were successfully copied.
                         ((counter++))
 
                         fi
