@@ -36,13 +36,15 @@ First iteration of pseudo code:
 
 My initial pseudo code included an if statement, but when I wrote my first draft of subsequent code, I found I didn’t need one — which implied I was maybe missing part of the puzzle. I defined my source and destination variables, my array of suspicious keywords and decided to use grep to output lines that matched any of the keywords.
 
-1st draft (ignore middle comments):
+When I was testing the grep command, I realized case sensitivity was an issue. I was searching for "failed" and not getting any results, until I cat’d the log file and noticed it was "Failed" I should be searching for. Two solutions for this is to use the "-i" flag to have the grep command search in a case-insensitive way or to change my variables for "suspiciousWords" to all be capital letters (except “error”).
+
+1st draft (edit: screenshot should show '>>' not '>' in the very last line)
 
 ![image](https://github.com/user-attachments/assets/e18e59ce-2293-43d3-8183-346cd9c58a13)
 
 The script above ran successfully until I ran it again and realized it added duplicate lines to the results file (suspicious_activity.log). Here is when I also noticed that the original auth_log.log also had duplicates itself!
 
-I edited the script again, but this time with an if loop that read through the lines of the logfile and if any read lines matched any of the suspicious keywords, they were copied to the results file. I ran this version (below) and the script seemed to work until I realized the log files copied over were both normal and suspicious messages. My error here was comparing "$line" to the "${suspiciousWords}” array instead of a variable representing the array. So all the messages were being copied over without a condition.
+I edited the script again, but this time with a while loop that read through the lines of the logfile and if any read lines matched any of the suspicious keywords, they were copied to the results file. I ran this version (below) and the script seemed to work until I realized the log files copied over were both normal and suspicious messages. My error here was comparing "$line" to the "${suspiciousWords}” array instead of a variable representing the array. So all the messages were being copied over without a condition. I also hadn't solved the duplicate issue yet.
 
 2nd draft:
 
@@ -50,12 +52,13 @@ I edited the script again, but this time with an if loop that read through the l
 
 
 ## Final Code (Changes I Made)
+At first, I was thinking of a for loop, as in for each line in this file, evaluate if it’s normal or suspicious. Then if it’s suspicious, copy it over to the suspicious log. But, we also have to run this daily which means new log files would be present. So I changed it to a while loop because if we are running this script daily, that implies we’re encountering new logs all the time and have an infinite amount of arguments. So while the log file has logs to analyze, the script will run.
 
 To account for duplicates, I added in an associative array that holds all the contents of suspicious_activity.log. That way my script can check against this array for duplicates before adding in a new entry into suspicious_activity.log. Even if an identical suspicious login attempt is made and logged in auth-log.log file, the date of the error log is always included, making each line unique.
 
-To have the lines of auth_log.log checked multiple times for different reasons, I used nested if loops to check first if lines read in the log file included any suspicious key words and second if they already existed in the results file before copying them over to suspicious_activity.log.
+To have the lines of auth_log.log checked multiple times for different reasons, I used nested if loops to check first if lines read in the log file included any suspicious key words and second if they already existed in the results file before copying them over to suspicious_activity.log. This alongside my associative array helped solve the duplicate issue.
 
-Within my nested if loop, I rewrote the if conditional to instead have the lines read from auth_log.log compared to a variable called “susword” which represented each suspicious keyword in my 'suspiciousWords' array.
+Within my nested if loop, I also rewrote the if conditional to instead have the lines read from auth_log.log compared to a variable called “susword” which represented each suspicious keyword in my 'suspiciousWords' array.
 
 Lastly, I edited my pseudo code to be more descriptive, especially for the loop sections, to explain each process as its written. I also did something new and used pseudo code to break my script up into sections with “titles”. These titles start with a “# - -” and are indented to the center of the script. I’d like to know if this is good practice or not.
 
